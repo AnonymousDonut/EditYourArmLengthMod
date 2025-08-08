@@ -29,47 +29,34 @@ namespace EditArmLength
 
         private void OnDisable()
         {
-            GorillaLocomotion.Player.Instance.transform.localScale = new Vector3(1f, 1f, 1f);
+            GTPlayer.Instance.transform.localScale = new Vector3(1f, 1f, 1f);
         }
 
-        private void OnModdedJoined()
+        void Update()
         {
-            if (inRoom == true) return;
-            inRoom = true;
-        }
-        private void OnModdedLeft()
-        {
-            if (inRoom == false) return;
-            inRoom = false;
-        }
-
-        private void Update()
-        {
-            if (!PhotonNetwork.InRoom) OnModdedJoined();
-            else if (!NetworkSystem.Instance.GameModeString.Contains("MODDED")) OnModdedLeft();
-
-            if (inRoom)
+            if (PhotonNetwork.InRoom && NetworkSystem.Instance.GameModeString.Contains("MODDED"))
             {
-                if (ControllerInputPoller.instance.rightControllerIndexFloat > 0)
+                if (ControllerInputPoller.instance.rightControllerIndexFloat > 0 && canDoMore)
                 {
-                    GorillaLocomotion.Player.Instance.transform.localScale += new Vector3(0.02f, 0.02f, 0.02f);
-                    if (GorillaLocomotion.Player.Instance.transform.localScale.x > 3f)
+                    GTPlayer.Instance.transform.localScale += new Vector3(0.02f, 0.02f, 0.02f);
+                    if (GTPlayer.Instance.transform.localScale >= 3)
                     {
-                        GorillaLocomotion.Player.Instance.transform.localScale = new Vector3(3f, 3f, 3f);
+                        canDoMore = false;
                     }
                 }
-
-                if (ControllerInputPoller.instance.leftControllerIndexFloat > 0)
-                {
-                    GorillaLocomotion.Player.Instance.transform.localScale -= new Vector3(0.02f, 0.02f, 0.02f);
-                    if (GorillaLocomotion.Player.Instance.transform.localScale.x < 0.2f)
+                 if (ControllerInputPoller.instance.leftControllerIndexFloat > 0 && canDoLess)
+                 {
+                    GTPlayer.Instance.transform.localScale -= new Vector3(0.02f, 0.02f, 0.02f);
+                    if (GTPlayer.Instance.transform.localScale < 0.2f)
                     {
-                        GorillaLocomotion.Player.Instance.transform.localScale = new Vector3(0.2f, 0.2f, 0.2f);
+                        canDoLess = false;
                     }
                 }
             }
-            
+            else if (PhotonNetwork.InRoom && !NetworkSystem.Instance.GameModeString.Contains("MODDED"))
+            {
+                OnDisable();
+            }
         }
-
     }
 }
